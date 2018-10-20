@@ -1,0 +1,12 @@
+[package]
+name = "hello-3d"
+version = "0.1.0"
+authors = ["Stephen Sherratt <sfsherratt@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+cgmath = "0.16"
+gfx = "0.17"
+gfx_device_gl = "0.15"
+gfx_window_glutin = "0.26"
+glutin = "0.18"
