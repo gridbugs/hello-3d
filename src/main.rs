@@ -63,7 +63,7 @@ mod wall {
     const CELL_SIZE: f32 = 64.;
     const WIDTH: f32 = 16.;
     const HEIGHT: f32 = 48.;
-    const FACE_TEX_OFFSET: Vector2<f32> = Vector2 { x: 320., y: 0. };
+    const FACE_TEX_OFFSET: Vector2<f32> = Vector2 { x: 384., y: 64. };
     const FACE_TEX_HEIGHT: f32 = 48.;
     const QUAD_INDICES: [u32; 6] = [0, 1, 2, 0, 2, 3];
 
@@ -108,7 +108,7 @@ mod wall {
     }
 
     pub fn straight() -> VerticesAndOffsets<Vertex> {
-        const TOP_TEX_OFFSET: Vector2<f32> = Vector2 { x: 192., y: 0. };
+        const TOP_TEX_OFFSET: Vector2<f32> = Vector2 { x: 256., y: 64. };
         let start_x = CELL_SIZE / 2. - WIDTH / 2.;
         let cross_section = [
             vec2(0., start_x),
@@ -123,9 +123,9 @@ mod wall {
             &[(cross_section[0], 0.), (cross_section[1], CELL_SIZE)],
         );
         let b = extrude_disconnected(
-            FACE_TEX_OFFSET,
+            FACE_TEX_OFFSET + vec2(CELL_SIZE, 0.),
             FACE_TEX_HEIGHT,
-            &[(cross_section[2], 0.), (cross_section[3], CELL_SIZE)],
+            &[(cross_section[2], 0.), (cross_section[3], -CELL_SIZE)],
         );
         let top = VerticesAndOffsets {
             vertices: cross_section
@@ -258,8 +258,10 @@ fn main() {
         aspect_ratio: (width / height) as f32,
     };
 
+    let mut camera_move = vec3(0., 0., 0.);
     let mut running = true;
     while running {
+        camera.position += camera_move;
         encoder.clear(&data.out_colour, [0., 0., 0., 1.]);
         encoder.clear_depth(&data.out_depth, 1.);
         let camera_transform = camera.transform();
@@ -290,20 +292,47 @@ fn main() {
                         match input.state {
                             glutin::ElementState::Pressed => match virtual_keycode {
                                 glutin::VirtualKeyCode::Left => {
-                                    camera.position.x -= step;
+                                    camera_move.x = -step;
                                 }
                                 glutin::VirtualKeyCode::Right => {
-                                    camera.position.x += step;
+                                    camera_move.x = step;
                                 }
                                 glutin::VirtualKeyCode::Up => {
-                                    camera.position.z -= step;
+                                    camera_move.z = -step;
                                 }
                                 glutin::VirtualKeyCode::Down => {
-                                    camera.position.z += step;
+                                    camera_move.z = step;
+                                }
+                                glutin::VirtualKeyCode::A => {
+                                    camera_move.y = -step;
+                                }
+                                glutin::VirtualKeyCode::S => {
+                                    camera_move.y = step;
+                                }
+
+                                _ => (),
+                            },
+                            glutin::ElementState::Released => match virtual_keycode {
+                                glutin::VirtualKeyCode::Left => {
+                                    camera_move.x = 0.;
+                                }
+                                glutin::VirtualKeyCode::Right => {
+                                    camera_move.x = 0.;
+                                }
+                                glutin::VirtualKeyCode::Up => {
+                                    camera_move.z = 0.;
+                                }
+                                glutin::VirtualKeyCode::Down => {
+                                    camera_move.z = 0.;
+                                }
+                                glutin::VirtualKeyCode::A => {
+                                    camera_move.y = 0.;
+                                }
+                                glutin::VirtualKeyCode::S => {
+                                    camera_move.y = 0.;
                                 }
                                 _ => (),
                             },
-                            _ => (),
                         }
                     }
                 }
